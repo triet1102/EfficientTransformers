@@ -1,0 +1,17 @@
+# python installed packages
+.venv/
+
+# macOS .DS_Store file that stores custom attributes of its containing folder
+.DS_Store
+
+# jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# py cache
+__pycache__
+
+# mypy cache
+.mypy_cache
+
+# ruff cache
+.ruff_cache
