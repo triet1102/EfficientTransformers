@@ -2,8 +2,8 @@ jupytext
 notebook
 plotly
 kaleido
-transformers
+transformers[torch]
 datasets>=2.16.0
 ipywidgets
 matplotlib
-torch
+scikit-learn
