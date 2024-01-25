@@ -8,13 +8,14 @@ from transformers import (
     pipeline,
 )
 
-from src.trainer import DistillationTrainer, DistillationTraingArguments
+from efficient_transformer.trainer import (
+    DistillationTrainer,
+    DistillationTrainingArguments,
+)
 
 teacher_ckpt = "transformersbook/bert-base-uncased-finetuned-clinc"
 pipe = pipeline("text-classification", model=teacher_ckpt)
 
-student_ckpt = "distilbert-base-uncased"
-student_tokenizer = AutoTokenizer.from_pretrained(student_ckpt)
 student_ckpt = "distilbert-base-uncased"
 student_tokenizer = AutoTokenizer.from_pretrained(student_ckpt)
 
@@ -31,7 +32,7 @@ clinc_enc = clinc_enc.rename_column("intent", "labels")
 
 batch_size = 16
 finetuned_ckpt = "distilbert-base-uncased-finetuned-clinc"
-student_training_args = DistillationTraingArguments(
+student_training_args = DistillationTrainingArguments(
     output_dir=finetuned_ckpt,
     evaluation_strategy="epoch",
     num_train_epochs=5,
