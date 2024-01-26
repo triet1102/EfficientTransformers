@@ -1,4 +1,4 @@
----
+code/model_optimization.Rmd---
 jupyter:
   jupytext:
     text_representation:
@@ -35,6 +35,7 @@ from efficient_transformer.utility import (
     load_benchmark_result,
 )
 import os
+import optuna
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 notebook_login()
@@ -113,7 +114,7 @@ def student_init():
     return AutoModelForSequenceClassification.from_pretrained(
         student_ckpt, config=student_config
     ).to(device)
-    
+
 def compute_metrics(pred):
     accuracy_score = load_metric("accuracy")
     predictions, labels = pred
@@ -138,6 +139,30 @@ print("Finished Training!")
 
 ```{python}
 distilbert_trainer.push_to_hub("Training completed!")
+```
+
+```{python}
+# test_model = student_init()
+# sample = {'labels': [61],
+#           'input_ids': [[101, 2054, 3670, 2052, 1045, 2224, 2000, 2360, 1045, 2293, 2017, 2065, 1045, 2020, 2019, 3059, 102]],
+#           'attention_mask': [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]}
+# tensor_data = {key: torch.tensor(value).to("cuda") for key, value in sample.items()}
+# outputs = test_model(**tensor_data)
+```
+
+```{python}
+def hp_space(trial):
+    return {
+        "num_train_epochs": trial.suggest_int("num_train_epochs", 5, 10),
+        "alpha": trial.suggest_float("alpha", 0, 1),
+        "temperature": trial.suggest_float("temperature", 2, 20),
+    }
+```
+
+```{python}
+best_run = distilbert_trainer.hyperparameter_search(
+    n_trials=20, direction="maximize", hp_space=hp_space
+)
 ```
 
 ```{python}
