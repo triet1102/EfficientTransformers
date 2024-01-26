@@ -60,5 +60,4 @@ class PerformanceBenchmark:
         metrics[self.optim_type] = self.compute_size()
         metrics[self.optim_type].update(self.time_pipeline())
         metrics[self.optim_type].update(self.compute_accuracy())
-
         return metrics

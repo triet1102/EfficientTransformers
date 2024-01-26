@@ -5,7 +5,7 @@ set -e
 apt-get update
 # prepare ubuntu for building python
 apt-get install -y build-essential libz-dev libssl-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev lzma xz-utils liblzma-dev
-
+apt-get install htop
 # ... setup git ssh keys
 # setup git config here
 git config --global user.email "t.triet.1102@gmail.com"
@@ -27,8 +27,8 @@ echo 'eval "$(pyenv init -)"' >> ~/.profile
 curl -sfL https://direnv.net/install.sh | bash
 echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
 
-# restart the shell
-exec "$SHELL"
-
 # install python 3.10.9
 CONFIGURE_OPTS=--enable-shared pyenv install 3.10.9
+
+# restart the shell
+exec "$SHELL"
