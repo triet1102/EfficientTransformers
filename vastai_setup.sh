@@ -27,8 +27,5 @@ echo 'eval "$(pyenv init -)"' >> ~/.profile
 curl -sfL https://direnv.net/install.sh | bash
 echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
 
-# install python 3.10.9
-CONFIGURE_OPTS=--enable-shared pyenv install 3.10.9
-
 # restart the shell
 exec "$SHELL"
