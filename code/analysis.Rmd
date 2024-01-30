@@ -1,0 +1,84 @@
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.2'
+      jupytext_version: 1.16.0
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+---
+
+```{python}
+from efficient_transformer.benchmark import PerformanceBenchmark
+from transformers import pipeline
+from datasets import load_dataset
+from efficient_transformer.utility import save_benchmark_result, load_benchmark_result, plot_metrics
+import matplotlib.pyplot as plt
+```
+
+### Load the dataset
+
+```{python}
+clinc = load_dataset("clinc_oos", "plus")
+intents = clinc["test"].features["intent"]
+```
+
+### Evaluate Bert base fine-tuned on clinc dataset
+
+```{python}
+bert_ckpt = "transformersbook/bert-base-uncased-finetuned-clinc"
+pipe = pipeline("text-classification", model=bert_ckpt)
+```
+
+```{python}
+pb = PerformanceBenchmark(intents, pipe, clinc["test"])
+perf_metrics = pb.run_benchmark()
+```
+
+### Evaluate DistilBert finetuned
+Finetuned DistilBert on clinc dataset (by setting `alpha` parameters in the loss function equal to 1)
+
+```{python}
+bert_ckpt = "triet1102/distilbert-base-uncased-finetuned-clinc"
+pipe = pipeline("text-classification", model=bert_ckpt)
+```
+
+```{python}
+pb = PerformanceBenchmark(intents, pipe, clinc["test"], "DistilBERT")
+perf_metrics.update(pb.run_benchmark())
+```
+
+### Evaluate DistilBert finetuned
+Distilled DistilBert on clinc dataset (using best hyperparameters searched by `Optuna`)
+
+```{python}
+bert_ckpt = "triet1102/distilbert-base-uncased-distilled-clinc"
+pipe = pipeline("text-classification", model=bert_ckpt)
+```
+
+```{python}
+pb = PerformanceBenchmark(intents, pipe, clinc["test"], "Distillation")
+perf_metrics.update(pb.run_benchmark())
+```
+
+### Compare different optim type
+
+```{python}
+save_benchmark_result(perf_metrics, "../results/perf_metrics.pickle")
+```
+
+```{python}
+perf_metrics = load_benchmark_result("../results/perf_metrics.pickle")
+```
+
+```{python}
+plot_metrics(perf_metrics, "Distillation", "../results/comparison.png")
+```
+
+```{python}
+
+```
