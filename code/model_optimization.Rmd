@@ -34,11 +34,9 @@ from efficient_transformer.utility import (
     save_benchmark_result,
     load_benchmark_result,
 )
-import os
 import optuna
-
+import os
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
-notebook_login()
 ```
 
 ```{python}
@@ -123,6 +121,10 @@ def compute_metrics(pred):
 ```
 
 ```{python}
+notebook_login()
+```
+
+```{python}
 distilbert_trainer = DistillationTrainer(
     model_init=student_init,
     teacher_model=teacher_model,
@@ -132,6 +134,9 @@ distilbert_trainer = DistillationTrainer(
     compute_metrics=compute_metrics,
     tokenizer=student_tokenizer,
 )
+```
+
+```{python}
 print("Training....")
 distilbert_trainer.train()
 print("Finished Training!")
@@ -161,8 +166,39 @@ def hp_space(trial):
 
 ```{python}
 best_run = distilbert_trainer.hyperparameter_search(
-    n_trials=20, direction="maximize", hp_space=hp_space
+    n_trials=10, direction="maximize", hp_space=hp_space
 )
+```
+
+```{python}
+best_run
+```
+
+```{python}
+for k,v in best_run.hyperparameters.items():
+    setattr(student_training_args, k, v)
+```
+
+```{python}
+distilled_ckpt = "../distilbert-base-uncased-distilled-clinc"
+student_training_args.output_dir = distilled_ckpt
+distilbert_trainer = DistillationTrainer(
+    model_init=student_init,
+    teacher_model=teacher_model,
+    args=student_training_args,
+    train_dataset=clinc_enc["train"],
+    eval_dataset=clinc_enc["validation"],
+    compute_metrics=compute_metrics,
+    tokenizer=student_tokenizer,
+)
+```
+
+```{python}
+distilbert_trainer.train()
+```
+
+```{python}
+distilbert_trainer.push_to_hub("Training with best hyperparameters complete")
 ```
 
 ```{python}
